@@ -69,6 +69,14 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
         tableView.tableHeaderView = nil
         tableView.tableFooterView = UIView(frame: .zero)
 
+        let backgroundTapRecognizer = UITapGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.didTapMessageListBackground)
+        )
+        backgroundTapRecognizer.cancelsTouchesInView = false
+        backgroundTapRecognizer.delegate = context.coordinator
+        tableView.addGestureRecognizer(backgroundTapRecognizer)
+
         transaction.updateQueue = updateQueue
         chatParams.onTransactionReady?(transaction)
 
@@ -457,7 +465,7 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
         )
     }
 
-    class Coordinator: NSObject, UITableViewDataSource, UITableViewDelegate {
+    class Coordinator: NSObject, UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate {
 
         @ObservedObject var viewModel: ChatViewModel
         @ObservedObject var inputViewModel: InputViewModel
@@ -542,6 +550,18 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
 
         var lastReadIndicatorIndexPath: IndexPath? {
             UIList.lastReadIndicatorIndexPath(sections: sections, enabled: chatParams.showLastReadIndicator)
+        }
+
+        @objc func didTapMessageListBackground() {
+            chatParams.onMessageListBackgroundTap?()
+        }
+
+        func gestureRecognizer(
+            _ gestureRecognizer: UIGestureRecognizer,
+            shouldReceive touch: UITouch
+        ) -> Bool {
+            guard let tableView = gestureRecognizer.view as? UITableView else { return false }
+            return tableView.indexPathForRow(at: touch.location(in: tableView)) == nil
         }
 
         func numberOfSections(in tableView: UITableView) -> Int {
@@ -845,4 +865,3 @@ func performBatchTableUpdates(_ tableView: UITableView, closure: ()->()) async {
         }
     }
 }
-

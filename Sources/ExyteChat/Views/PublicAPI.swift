@@ -158,6 +158,13 @@ public extension ChatView {
         return view
     }
 
+    /// Called when the user taps the message list outside of a message row.
+    func onMessageListBackgroundTap(_ closure: @escaping () -> Void) -> ChatView {
+        var view = self
+        view.chatCustomizationParameters.onMessageListBackgroundTap = closure
+        return view
+    }
+
     /// awaitable updates helper similar in usage to `tableView.performBatchUpdates`
     func updateTransaction(_ binding: Binding<TableUpdateTransaction?>) -> ChatView {
         var view = self

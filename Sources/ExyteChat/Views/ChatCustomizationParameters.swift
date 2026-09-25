@@ -25,6 +25,7 @@ struct ChatCustomizationParameters {
     var scrollToParams: ScrollToParams?
     var onContentOffsetChange: ((CGFloat) -> Void)? // Internal → External
     var onWillDisplayCell: ((Message) -> Void)?
+    var onMessageListBackgroundTap: (() -> Void)?
     var onTransactionReady: ((TableUpdateTransaction) -> Void)?
     var onLiveLocationBroadcast: ((LiveLocationBroadcastEvent) -> Void)?
 
