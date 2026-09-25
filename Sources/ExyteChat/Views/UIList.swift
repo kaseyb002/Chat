@@ -576,6 +576,11 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
             return base
         }
 
+        func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            tableView.deselectRow(at: indexPath, animated: false)
+            chatParams.onMessageRowTap?()
+        }
+
         private func messageRow(at indexPath: IndexPath) -> MessageRow? {
             let indicatorIP = lastReadIndicatorIndexPath
             guard indexPath != indicatorIP else { return nil }

@@ -165,6 +165,13 @@ public extension ChatView {
         return view
     }
 
+    /// Called when the user taps a message table row without activating a control in its content.
+    func onMessageRowTap(_ closure: @escaping () -> Void) -> ChatView {
+        var view = self
+        view.chatCustomizationParameters.onMessageRowTap = closure
+        return view
+    }
+
     /// awaitable updates helper similar in usage to `tableView.performBatchUpdates`
     func updateTransaction(_ binding: Binding<TableUpdateTransaction?>) -> ChatView {
         var view = self
