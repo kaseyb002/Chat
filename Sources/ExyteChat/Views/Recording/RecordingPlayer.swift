@@ -45,14 +45,13 @@ final actor RecordingPlayer: ObservableObject {
         }
     }
 
-    private let audioSession = AVAudioSession()
+    private let audioSession = AVAudioSession.sharedInstance()
     private var player: AVPlayer?
     private var timeObserver: Any?
 
-    init() {
-        try? audioSession.setCategory(.playback)
-        try? audioSession.overrideOutputAudioPort(.speaker)
-    }
+    // ChatViewModel creates this player even when no recording is played.
+    // Leave the shared session untouched until playback is requested.
+    init() {}
 
     func play(_ recording: Recording) {
         setupPlayer(for: recording)
@@ -102,7 +101,21 @@ final actor RecordingPlayer: ObservableObject {
     }
 
     private func play() {
-        try? audioSession.setActive(true)
+        do {
+            if audioSession.category == .playAndRecord {
+                // Preserve an existing voice chat session and its audio route.
+                try audioSession.setCategory(
+                    .playAndRecord,
+                    mode: audioSession.mode,
+                    options: audioSession.categoryOptions.union(.mixWithOthers)
+                )
+            } else {
+                try audioSession.setCategory(.playback, mode: .default, options: .mixWithOthers)
+            }
+            try audioSession.setActive(true)
+        } catch {
+            return
+        }
         player?.play()
         internalPlaying = true
         NotificationCenter.default.post(name: .chatAudioIsPlaying, object: self)
